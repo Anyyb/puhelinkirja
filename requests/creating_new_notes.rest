@@ -1,0 +1,34 @@
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "John Snow",
+    "number": "040321408"
+}
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Daenerys Targaryen",
+    "number": "050234589"
+}
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "Daenerys Targaryen",
+    "number": "050234589"
+}
+###
+
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "",
+    "number": ""
+}

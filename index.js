@@ -4,7 +4,6 @@ const cors = require('cors')
 
 
 const app = express()
-app.use(express.static('dist'))
 app.use(express.json())
 
 app.use(cors())
@@ -43,6 +42,9 @@ let persons = [
     number: "39-23-6423122"
     },
 ]
+
+app.use(express.static('dist'))
+
 //etusivu eli sovelluksen juureen tehtävät pyynnöt
 app.get('/',(request, response) => {
   response.send('<h1>Front Page</h1>')

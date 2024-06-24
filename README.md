@@ -1,3 +1,3 @@
 # puhelinkirja
 opiskeluprojekti
-Tämä repositio on full stack open kurssin tehtävää: "puhelinluetteloa" varten.
+Tämä repositorio on full stack open kurssin tehtävää: "puhelinluetteloa" varten.

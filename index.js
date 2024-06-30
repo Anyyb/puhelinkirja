@@ -1,11 +1,12 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 
 const app = express()
 app.use(express.json())
-
 app.use(cors())
 app.use(morgan('tiny'))// käytetään morgan tinya ja näytetään tinyn sisältämät pyynnön perustiedot.
 app.use(morgan(':body'))// asetetaan moran käyttämään luotua tokenia ja näyttämään tiedot.
@@ -20,69 +21,47 @@ morgan.token('body', function(request, response ) {
   return JSON.stringify(request.body)
 })
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456"
-    },
-    {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523"
-    },
-    {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345"
-    },
-    {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122"
-    },
-]
-
-app.use(express.static('dist'))
-
 //etusivu eli sovelluksen juureen tehtävät pyynnöt
 app.get('/',(request, response) => {
   response.send('<h1>Front Page</h1>')
 })
 // http get pyynnöt polkuun persons
+//haetaan tietokannasta collectionista Persons
 app.get('/api/persons',(request, response) => {
-  response.json(persons)
+  Person.find({}).then(result => {
+    response.json(result)  
+  })
 })
-// pyynnöt polkuun info
+// pyynnöt polkuun info, haetaan tiedot tietokannasta 
 app.get('/info',(request, response) => {
-  const contacts= persons.length
+  Person.find({}).then(result => {
+  const contacts= result.length
   response.send(`<h3>Phonebook has info for ${contacts} people <br> ${new Date()} </h3>`)
 })
-//yhden henkilön tietojen näyttämisen, pyynnöt polkuun api/henkilöt/henkilönID
+})
+
+//yksittäisen henkilön tiedon tarkastelu tietokannasta.
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = persons.find(person => person.id === id)
-  //lähetetään palvelimelle vastauksena tiedot jos henkilön ID on olemassa.
-  //muutoin palautetaan statuskoodi 404 not found
-  if (person) {
+    Person.findById(request.params.id).then(person => {
     response.json(person)
-  } else {
+ })
+  //palautetaan statuskoodi 404 not found, jos henkilöä ei ole
+  if (Person === undefined) {
     response.status(404).end()
   }
 })
-// numeron poiston pyyntö polkuun api/henkilöt/henkilönNumero
+// numeron poiston pyyntö tietokannasta
 app.delete('/api/persons/:number', (request, response) => {
-  const number = Number(request.params.number)
-  persons = persons.filter(person => person.number !== number)
-  //statuskoodi no content
-  response.status(204).end()
+  Person.findOne({number:request.params.number}).then(person =>{
+    Person.deleteOne(person)
+    response.status(204).end()
+  })
 })
-
 //luodaan uusi ID numero math.randomilla ja asetetaan luku arvoväliksi 500
-const generateID = () => {
-  const newID=Math.floor(Math.random() * 500)
-  return newID
-}
+//const generateID = () => {
+  //const newID=Math.floor(Math.random() * 500)
+  //return newID
+//}
 
 // henkilön lisäys, tehdään post pyyntö polkuun /api/persons
 app.post('/api/persons',(request,response) => {
@@ -96,8 +75,8 @@ app.post('/api/persons',(request,response) => {
       })
     }
     // etsitään löytyykö uusi nimi tai numero jo listalta ja tallennetaan tiedot muuttujiin.
-    const name = persons.find(person => person.name === body.name);
-    const number = persons.find(person => person.number === body.number);
+    const name = person.find(person => person.name === body.name);
+    const number = person.find(person => person.number === body.number);
     //jos pyynnön numero tai nimi löytyy jo listalta,
     if(name || number){
       // ja sisältö on sama annetaan statuskoodi 400 bad request
@@ -105,22 +84,29 @@ app.post('/api/persons',(request,response) => {
        error: 'name and number must be unigue'
       })
     }
-
-    const person = {
-      id:generateID(),
+   // const person = {
+      //id:generateID(),
+      //name: body.name,
+      //number:body.number,
+   // }
+    const person = new Person({
       name: body.name,
       number:body.number,
-    }
-    persons = persons.concat(person)
-    response.json(person)
+    })
+    
+    //persons = persons.concat(person)
+    //lisätään henkilö tietokantaan
+    person.save().then(savedPerson => {
+      response.json(savedPerson)
+    })
 })
 
-//portti .env tiedostosta tai käytetään 3001
-const PORT = process.env.PORT || 3001;
+//portti .env tiedostosta 
+const PORT = process.env.PORT;
 //lisätty osoitteet konsoliin helpompaa sivujen seurantaa varten.
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   console.log(`Server is running on http://localhost:${PORT}/api/persons`);
   console.log(`Server is running on http://localhost:${PORT}/info`);
-  console.log(`Server is running on http://localhost:${PORT}/api/persons/4`);
+  console.log(`Server is running on http://localhost:${PORT}/api/persons/667b1fa95f3382bac6464b30`);
 });

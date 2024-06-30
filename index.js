@@ -50,12 +50,11 @@ app.get('/api/persons/:id', (request, response) => {
     response.status(404).end()
   }
 })
-// numeron poiston pyyntö tietokannasta
+// numeron poisto tietokannasta
 app.delete('/api/persons/:number', (request, response) => {
-  Person.findOne({number:request.params.number}).then(person =>{
-    Person.deleteOne(person)
-    response.status(204).end()
-  })
+  Person.findOneAndDelete({ number:request.params.number}).then(result => {
+  response.status(204).end()
+})
 })
 
 // henkilön lisäys, tehdään post pyyntö polkuun /api/persons

@@ -4,7 +4,6 @@ const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
 
-
 const app = express()
 app.use(express.static('dist'))
 app.use(express.json())
@@ -58,11 +57,6 @@ app.delete('/api/persons/:number', (request, response) => {
     response.status(204).end()
   })
 })
-//luodaan uusi ID numero math.randomilla ja asetetaan luku arvoväliksi 500
-//const generateID = () => {
-  //const newID=Math.floor(Math.random() * 500)
-  //return newID
-//}
 
 // henkilön lisäys, tehdään post pyyntö polkuun /api/persons
 app.post('/api/persons',(request,response) => {
@@ -75,27 +69,10 @@ app.post('/api/persons',(request,response) => {
         error: 'name and number cannot be empty'
       })
     }
-    // etsitään löytyykö uusi nimi tai numero jo listalta ja tallennetaan tiedot muuttujiin.
-    const name = person.find(person => person.name === body.name);
-    const number = person.find(person => person.number === body.number);
-    //jos pyynnön numero tai nimi löytyy jo listalta,
-    if(name || number){
-      // ja sisältö on sama annetaan statuskoodi 400 bad request
-      return response.status(400).json({
-       error: 'name and number must be unigue'
-      })
-    }
-   // const person = {
-      //id:generateID(),
-      //name: body.name,
-      //number:body.number,
-   // }
     const person = new Person({
       name: body.name,
       number:body.number,
     })
-    
-    //persons = persons.concat(person)
     //lisätään henkilö tietokantaan
     person.save().then(savedPerson => {
       response.json(savedPerson)

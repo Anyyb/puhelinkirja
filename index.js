@@ -6,6 +6,7 @@ const Person = require('./models/person')
 
 
 const app = express()
+app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
 app.use(morgan('tiny'))// käytetään morgan tinya ja näytetään tinyn sisältämät pyynnön perustiedot.

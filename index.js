@@ -97,11 +97,11 @@ app.put('/api/persons/:id', (request, response, next) => {
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
+  if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: 'Person validation failed, wrong format ' })
+  }
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id'})
-  }
-  if (error.name === 'BadRequest') {
-    return response.status(400).send({ error: 'bad request'})
   }
   if (error.name === 'NoContent') {
     return response.status(204).send({ error: 'noContent'})
@@ -109,7 +109,6 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'ServerError') {
     return response.status(500).json({ error: 'Internal Server Error'})
   }
-
   next(error)
 }
 
